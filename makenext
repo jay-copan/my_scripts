@@ -1,0 +1,59 @@
+#!/bin/bash
+
+#!/usr/bin/env bash
+
+START_R=255
+START_G=255
+START_B=255   # white
+
+END_R=170
+END_G=220
+END_B=230     # light blue
+
+read -r -d '' TEXT << 'EOF'
+███╗   ██╗███████╗██╗  ██╗████████╗        
+████╗  ██║██╔════╝╚██╗██╔╝╚══██╔══╝        
+██╔██╗ ██║█████╗   ╚███╔╝    ██║           
+██║╚██╗██║██╔══╝   ██╔██╗    ██║           
+██║ ╚████║███████╗██╔╝ ██╗   ██║           
+╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝   ╚═╝           
+                                           
+███╗   ███╗ █████╗ ██╗  ██╗███████╗██████╗ 
+████╗ ████║██╔══██╗██║ ██╔╝██╔════╝██╔══██╗
+██╔████╔██║███████║█████╔╝ █████╗  ██████╔╝
+██║╚██╔╝██║██╔══██║██╔═██╗ ██╔══╝  ██╔══██╗
+██║ ╚═╝ ██║██║  ██║██║  ██╗███████╗██║  ██║
+╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+                                           
+EOF
+
+LEN=${#TEXT}
+(( LEN < 2 )) && LEN=2
+
+for (( i=0; i<${#TEXT}; i++ )); do
+    C="${TEXT:i:1}"
+
+    # ratio = i / (LEN-1)
+    R=$(( START_R + (END_R - START_R) * i / (LEN - 1) ))
+    G=$(( START_G + (END_G - START_G) * i / (LEN - 1) ))
+    B=$(( START_B + (END_B - START_B) * i / (LEN - 1) ))
+
+    printf "\e[38;2;%d;%d;%dm%s" "$R" "$G" "$B" "$C"
+done
+
+printf "\e[0m\n"
+
+echo -e "
+This is a script that is going to do a few thing
+1. install nextjs (this includes tailwind and typescript)
+2. install husky (this is going to make sure that the git won't be a huge mess)
+3. install commitlint (this makes sure that the commit messages are neat and clean)
+"
+
+read -p "Do you want to continue with this process?? (y/n): " continue
+
+if [[ $continue == "yes" || $continue == "y" ]]; then
+  echo "starting the process"
+else 
+  echo "cancelling and closing the script"
+fi

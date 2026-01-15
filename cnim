@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# Set NVIM config directory
+export XDG_CONFIG_HOME="$HOME/Documents"
+
+# Launch Neovim
+nvim "$@"
+
