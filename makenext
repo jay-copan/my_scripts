@@ -47,15 +47,18 @@ printf "\e[0m\n"
 
 echo -e "
 This is a script that is going to do a few thing
-1. install nextjs (this includes tailwind and typescript)
-2. install husky (this is going to make sure that the git won't be a huge mess)
-3. install commitlint (this makes sure that the commit messages are neat and clean)
+1. install nextjs (this includes tailwind and typescript along with next router)
+2. install shadcn (this is a UI library that works well with next and has good components)
+3. install husky (this is going to make sure that the git won't be a huge mess)
+4. install commitlint (this makes sure that the commit messages are neat and clean)
 "
 
 read -p "Do you want to continue with this process?? (y/n): " continue
 
 if [[ $continue == "yes" || $continue == "y" ]]; then
   echo "starting the process"
+  npx create-next-app@latest .
+  npx shadcn@latest init
 else 
   echo "cancelling and closing the script"
 fi
