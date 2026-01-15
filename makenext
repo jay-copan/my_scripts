@@ -10,6 +10,8 @@ END_R=170
 END_G=220
 END_B=230     # light blue
 
+
+# the font used here is ANSI shadow
 read -r -d '' TEXT << 'EOF'
 ███╗   ██╗███████╗██╗  ██╗████████╗        
 ████╗  ██║██╔════╝╚██╗██╔╝╚══██╔══╝        
