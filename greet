@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+QUOTES=(
+  "Code is like humor. When you have to explain it, it’s bad."
+  "First, solve the problem. Then, write the code."
+  "Programs must be written for people to read."
+  "Fix the cause, not the symptom."
+  "Eat. Sleep. Code. Repeat."
+)
+
+RANDOM_QUOTE=${QUOTES[RANDOM % ${#QUOTES[@]}]}
+
+# ========== ASCII ==========
+read -r -d '' BANNER << 'EOF'
+██╗    ██╗███████╗██╗      ██████╗ ██████╗ ███╗   ███╗███████╗██╗██╗██╗
+██║    ██║██╔════╝██║     ██╔════╝██╔═══██╗████╗ ████║██╔════╝██║██║██║
+██║ █╗ ██║█████╗  ██║     ██║     ██║   ██║██╔████╔██║█████╗  ██║██║██║
+██║███╗██║██╔══╝  ██║     ██║     ██║   ██║██║╚██╔╝██║██╔══╝  ╚═╝╚═╝╚═╝
+╚███╔███╔╝███████╗███████╗╚██████╗╚██████╔╝██║ ╚═╝ ██║███████╗██╗██╗██╗
+ ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝╚═╝╚═╝╚═╝
+                                                                       
+          ⠐⣪⡑⣤⣶⣶⣶⣦⡔⣩⡒⠀
+          ⢸⣯⣾⣿⢏⣿⣏⢿⣿⣮⣿⠀         
+          ⢸⣿⢸⡗⣶⠙⢱⡖⣿⢸⣿⠀        
+          ⢸⡿⠀⠳⣄⣐⣂⡴⠃⠸⣿⠀
+          ⣾⠃⠀⡵⡔⠕⠕⡰⡅⠀⢻⡆
+          ⢹⡆⠘⢴⠙⠑⠉⢳⡱⠀⣾⠁
+          ⠊⠀⠀⠈⡖⡖⡖⡎⠀⠀⠈⠂
+          ⠀⠀⠀⠀⠉⠁⠉⠁⠀⠀  ⠀⠀
+EOF
+
+clear
+
+mapfile -t lines <<< "$BANNER"
+total=${#lines[@]}
+
+# Dark → Neon blue
+start_r=20
+start_g=40
+start_b=120
+
+end_r=120
+end_g=220
+end_b=255
+
+dark_portion=0.3   # 30% stays dark
+
+for i in "${!lines[@]}"; do
+  t=$(awk "BEGIN {print $i/($total-1)}")
+
+  if (( $(awk "BEGIN {print ($t < $dark_portion)}") )); then
+    # slow ramp for dark section
+    f=$(awk "BEGIN {print ($t/$dark_portion)*0.7}")
+  else
+    # fast ramp to neon
+    f=$(awk "BEGIN {print 0.7 + (($t-$dark_portion)/(1-$dark_portion))*0.3}")
+  fi
+
+  r=$(awk "BEGIN {print int($start_r + ($end_r-$start_r)*$f)}")
+  g=$(awk "BEGIN {print int($start_g + ($end_g-$start_g)*$f)}")
+  b=$(awk "BEGIN {print int($start_b + ($end_b-$start_b)*$f)}")
+
+  printf "\033[38;2;%d;%d;%dm%s\033[0m\n" "$r" "$g" "$b" "${lines[$i]}"
+done
+
+echo
+echo -e "\033[1;36m\"$RANDOM_QUOTE\"\033[0m"
+
+echo
+

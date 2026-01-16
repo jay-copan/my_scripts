@@ -1,18 +1,24 @@
-#!/bin/bash
-
 #!/usr/bin/env bash
 
-START_R=255
-START_G=255
-START_B=255   # white
+#################################
+# Colors
+#################################
+BLUE="\e[38;2;170;220;230m"
+LIGHT_BLUE="\e[38;2;200;235;245m"
+DIM_BLUE="\e[38;2;120;180;200m"
+WHITE="\e[38;2;255;255;255m"
+GREEN="\e[38;2;170;255;200m"
+RED="\e[38;2;255;170;170m"
+RESET="\e[0m"
+BOLD="\e[1m"
 
-END_R=170
-END_G=220
-END_B=230     # light blue
+#################################
+# Banner (gradient)
+#################################
+START_R=255; START_G=255; START_B=255
+END_R=170; END_G=220; END_B=230
 
-
-# the font used here is ANSI shadow
-read -r -d '' TEXT << 'EOF'
+TEXT=$(cat <<'EOF'
 ███╗   ██╗███████╗██╗  ██╗████████╗        
 ████╗  ██║██╔════╝╚██╗██╔╝╚══██╔══╝        
 ██╔██╗ ██║█████╗   ╚███╔╝    ██║           
@@ -26,39 +32,63 @@ read -r -d '' TEXT << 'EOF'
 ██║╚██╔╝██║██╔══██║██╔═██╗ ██╔══╝  ██╔══██╗
 ██║ ╚═╝ ██║██║  ██║██║  ██╗███████╗██║  ██║
 ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
-                                           
 EOF
+)
 
-LEN=${#TEXT}
-(( LEN < 2 )) && LEN=2
-
-for (( i=0; i<${#TEXT}; i++ )); do
-    C="${TEXT:i:1}"
-
-    # ratio = i / (LEN-1)
-    R=$(( START_R + (END_R - START_R) * i / (LEN - 1) ))
-    G=$(( START_G + (END_G - START_G) * i / (LEN - 1) ))
-    B=$(( START_B + (END_B - START_B) * i / (LEN - 1) ))
-
-    printf "\e[38;2;%d;%d;%dm%s" "$R" "$G" "$B" "$C"
+LEN=${#TEXT}; ((LEN<2)) && LEN=2
+for ((i=0;i<LEN;i++)); do
+  C="${TEXT:i:1}"
+  R=$((START_R+(END_R-START_R)*i/(LEN-1)))
+  G=$((START_G+(END_G-START_G)*i/(LEN-1)))
+  B=$((START_B+(END_B-START_B)*i/(LEN-1)))
+  printf "\e[38;2;%d;%d;%dm%s" "$R" "$G" "$B" "$C"
 done
+printf "\e[0m\n\n"
 
-printf "\e[0m\n"
+#################################
+# Info
+#################################
+echo -e "${LIGHT_BLUE}This script will install:${RESET}"
+echo -e "${DIM_BLUE} ▸${WHITE} Next.js (Tailwind + TypeScript)"
+echo -e "${DIM_BLUE} ▸${WHITE} shadcn/ui"
+echo -e "${DIM_BLUE} ▸${WHITE} Husky (Git hooks)"
+echo
 
-echo -e "
-This is a script that is going to do a few thing
-1. install nextjs (this includes tailwind and typescript along with next router)
-2. install shadcn (this is a UI library that works well with next and has good components)
-3. install husky (this is going to make sure that the git won't be a huge mess)
-4. install commitlint (this makes sure that the commit messages are neat and clean)
-"
+read -p "$(echo -e "${BLUE}Continue? (y/n): ${RESET}")" ok
+[[ $ok != "y" && $ok != "yes" ]] && echo -e "${RED}Cancelled${RESET}" && exit 0
 
-read -p "Do you want to continue with this process?? (y/n): " continue
+#################################
+# Next.js
+#################################
+echo -e "\n${BLUE}➜ Creating Next.js app${RESET}"
+npx create-next-app@latest .
 
-if [[ $continue == "yes" || $continue == "y" ]]; then
-  echo "starting the process"
-  npx create-next-app@latest .
-  npx shadcn@latest init
-else 
-  echo "cancelling and closing the script"
-fi
+#################################
+# shadcn
+#################################
+echo -e "\n${BLUE}➜ Initializing shadcn${RESET}"
+npx shadcn@latest init
+
+#################################
+# Git + Husky
+#################################
+echo -e "\n${BLUE}➜ Initializing Git${RESET}"
+[ ! -d .git ] && git init
+
+echo -e "${BLUE}➜ Installing Husky${RESET}"
+npm install -D husky
+
+echo -e "${BLUE}➜ Enabling Husky${RESET}"
+npx husky install
+npm pkg set scripts.prepare="husky install"
+
+echo -e "${BLUE}➜ Adding pre-commit hook${RESET}"
+npx husky add .husky/pre-commit "npm run lint"
+
+#################################
+# Done
+#################################
+echo
+echo -e "${GREEN}🎉 Setup complete!"
+echo -e "${LIGHT_BLUE}Husky is now protecting your commits 🛡️${RESET}"
+
